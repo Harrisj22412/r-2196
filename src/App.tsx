@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Properties from "./pages/Properties";
+import TravelHome from "./pages/TravelHome";
+import Destination from "./pages/Destination";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +18,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<TravelHome />} />
+          <Route path="/destination/:name" element={<Destination />} />
+          <Route path="/real-estate" element={<Index />} />
           <Route path="/properties" element={<Properties />} />
         </Routes>
       </BrowserRouter>
