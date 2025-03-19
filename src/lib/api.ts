@@ -153,7 +153,7 @@ const generateBestTimeToVisit = (name: string, latitude: number): {
   }
 };
 
-// Generate mock events and excursions data with specific Unsplash images
+// Generate mock events and excursions data with dynamic Unsplash images
 const generateMockEvents = (name: string, bestTimes: {season: string}[]): any[] => {
   const seasons = ["Spring", "Summer", "Fall", "Winter", "Dry Season", "Wet Season", "Cool Season"];
   const eventTypes = [
@@ -163,16 +163,6 @@ const generateMockEvents = (name: string, bestTimes: {season: string}[]): any[] 
     "Adventure Expedition",
     "Cultural Experience",
     "Museum Visit"
-  ];
-  
-  // Specific high-quality Unsplash images for excursions
-  const unsplashImages = [
-    "https://images.unsplash.com/photo-1472396961693-142e6e269027", // Scenic nature landscape
-    "https://images.unsplash.com/photo-1433086966358-54859d0ed716", // Bridge and waterfall
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07", // Orange flowers
-    "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb", // River between mountains
-    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9", // Pine trees
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800"  // Road trip scenic view
   ];
   
   const events = [];
@@ -190,14 +180,14 @@ const generateMockEvents = (name: string, bestTimes: {season: string}[]): any[] 
     // Generate a price between $20 and $200
     const price = Math.floor(Math.random() * 181) + 20;
     
-    // Select a specific Unsplash image
-    const imageUrl = unsplashImages[i % unsplashImages.length];
+    // Create query for Unsplash image that matches the event type and destination
+    const imageQuery = `${name} ${eventType.toLowerCase()}`;
     
     events.push({
       id: i + 1,
       title: `${name} ${eventType}`,
       description: `Experience the best of ${name} with this amazing ${eventType.toLowerCase()}.`,
-      image: imageUrl,
+      image: `https://source.unsplash.com/600x400/?${encodeURIComponent(imageQuery)}`,
       price,
       season
     });
