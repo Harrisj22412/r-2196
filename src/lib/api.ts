@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Define interface for destination data
@@ -228,6 +227,19 @@ export const fetchDestinationData = async (name: string): Promise<DestinationDat
   } catch (error) {
     console.error("Error fetching destination data:", error);
     toast.error(`Failed to load information for ${name}`);
+    throw error;
+  }
+};
+
+// Mock API endpoint for image analysis
+export const callImageAnalysisAPI = async (imageUrl: string, destination: string) => {
+  try {
+    // In a production app, this would call a backend API
+    // For this demo, we're directly calling our OpenAI function
+    const { handleImageAnalysis } = await import("@/api/analyze-image");
+    return await handleImageAnalysis({ imageUrl, destination });
+  } catch (error) {
+    console.error("Error calling image analysis API:", error);
     throw error;
   }
 };
