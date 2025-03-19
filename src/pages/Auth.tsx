@@ -5,12 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useEffect } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -29,6 +29,7 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const Auth = () => {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
@@ -38,6 +39,7 @@ const Auth = () => {
       email: "",
       password: "",
     },
+    mode: "onChange",
   });
 
   const signUpForm = useForm<SignUpFormValues>({
@@ -47,6 +49,7 @@ const Auth = () => {
       password: "",
       confirmPassword: "",
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -55,20 +58,30 @@ const Auth = () => {
     }
   }, [user, navigate]);
 
+  // Clear any error messages when switching between sign in and sign up
+  useEffect(() => {
+    setAuthError(null);
+  }, [isSignIn]);
+
   const onSignInSubmit = async (data: SignInFormValues) => {
     try {
+      setAuthError(null);
       await signIn(data.email, data.password);
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign-in error:", error);
+      setAuthError(error.message || "Failed to sign in. Please check your credentials.");
     }
   };
 
   const onSignUpSubmit = async (data: SignUpFormValues) => {
     try {
+      setAuthError(null);
       await signUp(data.email, data.password);
-    } catch (error) {
+      // Success message is shown via toast in the AuthContext
+    } catch (error: any) {
       console.error("Sign-up error:", error);
+      setAuthError(error.message || "Failed to create account. Please try again.");
     }
   };
 
@@ -84,6 +97,12 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {authError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{authError}</AlertDescription>
+            </Alert>
+          )}
+          
           {isSignIn ? (
             <Form {...signInForm}>
               <form onSubmit={signInForm.handleSubmit(onSignInSubmit)} className="space-y-4">
@@ -113,7 +132,7 @@ const Auth = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={signInForm.formState.isSubmitting}>
+                <Button type="submit" className="w-full" disabled={signInForm.formState.isSubmitting || !signInForm.formState.isValid}>
                   {signInForm.formState.isSubmitting ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
@@ -160,7 +179,7 @@ const Auth = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={signUpForm.formState.isSubmitting}>
+                <Button type="submit" className="w-full" disabled={signUpForm.formState.isSubmitting || !signUpForm.formState.isValid}>
                   {signUpForm.formState.isSubmitting ? "Signing up..." : "Sign Up"}
                 </Button>
               </form>
