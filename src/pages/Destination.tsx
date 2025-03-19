@@ -51,18 +51,10 @@ const Destination = () => {
       <TravelNavbar />
       <DestinationHero 
         name={data.name} 
-        image={data.flags?.svg || data.heroImage} 
+        image={data.heroImage} 
       />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <AboutSection 
-          description={data.description}
-          capital={data.capital}
-          region={data.region}
-          subregion={data.subregion}
-          population={data.population}
-          languages={data.languages}
-          currencies={data.currencies} 
-        />
+        <AboutSection description={data.description} />
         <BestTimeToVisit 
           name={data.name}
           bestTimes={data.bestTimeToVisit} 

@@ -1,6 +1,5 @@
 
 import { toast } from "sonner";
-import { fetchCountryByName } from "./countriesAPI";
 
 // Define interface for destination data
 export interface DestinationData {
@@ -25,22 +24,6 @@ export interface DestinationData {
     price: number;
     season: string;
   }[];
-  // New fields from REST Countries API
-  capital?: string[];
-  region?: string;
-  subregion?: string;
-  population?: number;
-  languages?: Record<string, string>;
-  currencies?: Record<string, {
-    name: string;
-    symbol: string;
-  }>;
-  flags?: {
-    png: string;
-    svg: string;
-    alt?: string;
-  };
-  borders?: string[];
 }
 
 // Unsplash API for images
@@ -218,35 +201,19 @@ const generateMockEvents = (name: string, bestTimes: {season: string}[]): any[] 
 // Main function to fetch all destination data
 export const fetchDestinationData = async (name: string): Promise<DestinationData> => {
   try {
-    // Step 1: Fetch country data from REST Countries API
-    const countryData = await fetchCountryByName(name);
+    // Step 1: Fetch the unsplash image for the hero
+    const heroImage = await fetchUnsplashImage(`${name} landmark`);
     
-    if (!countryData) {
-      throw new Error(`Country data not found for ${name}`);
-    }
+    // Step 2: Fetch Wikipedia description
+    const description = await fetchWikipediaDescription(name);
     
-    // Step 2: Fetch the unsplash image for the hero
-    const heroImage = countryData.flags?.svg || 
-                      await fetchUnsplashImage(`${name} landmark`);
+    // Step 3: Get coordinates from geocoding
+    const coordinates = await fetchGeocodingData(name);
     
-    // Step 3: Create description from country data
-    const description = `${name} is a country located in ${countryData.subregion || countryData.region}. 
-    The capital city is ${countryData.capital?.join(', ') || 'unknown'} and it has a population of 
-    ${countryData.population?.toLocaleString() || 'unknown'} people. 
-    ${Object.keys(countryData.languages || {}).length > 0 
-      ? `The spoken language(s) include ${Object.values(countryData.languages || {}).join(', ')}.` 
-      : ''}`;
-    
-    // Step 4: Get coordinates from country data
-    const coordinates = {
-      latitude: countryData.latlng[0],
-      longitude: countryData.latlng[1]
-    };
-    
-    // Step 5: Generate best time to visit based on coordinates
+    // Step 4: Generate best time to visit based on coordinates
     const bestTimeToVisit = generateBestTimeToVisit(name, coordinates.latitude);
     
-    // Step 6: Generate mock events based on destination and best times
+    // Step 5: Generate mock events based on destination and best times
     const events = generateMockEvents(name, bestTimeToVisit);
     
     // Return the combined destination data
@@ -256,16 +223,7 @@ export const fetchDestinationData = async (name: string): Promise<DestinationDat
       description,
       coordinates,
       bestTimeToVisit,
-      events,
-      // Add new fields from REST Countries API
-      capital: countryData.capital,
-      region: countryData.region,
-      subregion: countryData.subregion,
-      population: countryData.population,
-      languages: countryData.languages,
-      currencies: countryData.currencies,
-      flags: countryData.flags,
-      borders: countryData.borders
+      events
     };
   } catch (error) {
     console.error("Error fetching destination data:", error);
